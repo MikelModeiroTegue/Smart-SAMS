@@ -1,0 +1,117 @@
+/* === Global Reset === */
+/* === Import Font === */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
+
+/* === Global Reset === */
+body {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+/* === Sidebar === */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: linear-gradient(180deg, #0f172a, #1e293b);
+  color: white;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.Home-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #38bdf8;
+}
+
+.sidebar a {
+  display: block;
+  background-color: #bbf7d0;
+  color: #0f172a;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar a:hover {
+  background-color: #38bdf8;
+  color: white;
+}
+
+.sidebar a.active {
+  background: #22c55e;
+  color: white;
+}
+
+/* === Main Content Wrapper === */
+.ml-64 {
+  margin-left: 250px;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* === Form Card === */
+.upload-card {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 600px;
+}
+
+.upload-card h2 {
+  color: #1e3a8a;
+  margin-bottom: 24px;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+/* === Inputs === */
+.upload-card input[type="text"],
+.upload-card input[type="file"] {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #f1f5f9;
+  transition: border-color 0.2s;
+}
+
+.upload-card input:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* === Button === */
+.upload-card button {
+  background-color: #3b82f6;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.upload-card button:hover {
+  background-color: #2563eb;
+}

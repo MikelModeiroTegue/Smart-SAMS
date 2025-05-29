@@ -1,0 +1,56 @@
+{
+  "year": "2025",
+  "semester": "Second",
+  "timetable": [
+    {
+      "Course Code": "CEF 238",
+      "Course Title": "C/C++ Programming",
+      "Day": "Tuesday",
+      "Start Time": 0.2916666666666667,
+      "End Time": 0.375,
+      "Hall": "FET-BGFL",
+      "Department": "Computer Engineering",
+      "Semester": 2,
+      "Year": "2024/2025",
+      "Instructor1": "Dr. NGUTI",
+      "Instructor2": "Mr. FORCHA GLEN"
+    },
+    {
+      "Course Code": "CIV 222",
+      "Course Title": "Linear Algebra",
+      "Day": "Tuesday",
+      "Start Time": 0.2916666666666667,
+      "End Time": 0.375,
+      "Hall": "TECH1",
+      "Department": "Civil Engineering",
+      "Semester": 2,
+      "Year": "2024/2025",
+      "Instructor1": "FEUMOE NARCISSE ALAIN"
+    },
+    {
+      "Course Code": "MEF 204",
+      "Course Title": "Basic of Mechanical Drawing",
+      "Day": "Tuesday",
+      "Start Time": 0.2916666666666667,
+      "End Time": 0.375,
+      "Hall": "FET-BGFL-HALL1",
+      "Department": "Mechanical Engineering",
+      "Semester": 2,
+      "Year": "2024/2025",
+      "Instructor1": "Dr. TEMGOUA",
+      "Instructor2": "Dr. AQUIGEH"
+    },
+    {
+      "Course Code": "CPE208",
+      "Course Title": "Chemical Process Principle",
+      "Day": "Tuesday",
+      "Start Time": 0.2916666666666667,
+      "End Time": 0.375,
+      "Hall": "FET-BGFL-HALL2",
+      "Department": "Petroleum Engineering",
+      "Semester": 2,
+      "Year": "2024/2025",
+      "Instructor1": "TEISEH ELIASU"
+    }
+  ]
+}
