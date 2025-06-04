@@ -29,8 +29,18 @@ export default ({ config }) => ({
     },
     web: {
       favicon: "./assets/favicon.png",
+      "bundler": "metro",
     },
-    plugins: ["expo-web-browser"],
+    plugins: [
+      "expo-web-browser",
+      "expo-router",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID to Clock-In attendance."
+        }
+      ]
+    ],
     extra: {
       eas: {
         projectId: "f3b2c4d5-6e7f-8a9b-b0c1-d2e3f4g5h6i7",

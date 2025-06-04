@@ -1,18 +1,21 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 
-export default function SplashScreen({ navigation }) {
+export default function index() {
+  const router = useRouter();
+
   useEffect(() => {
     const timeout = setTimeout(() => {
-      navigation.replace('RoleSelect');
-    }, 5000);
+      router.replace('/RoleSelectScreen'); // route to RoleSelectScreen.jsx
+    }, 3000);
 
     return () => clearTimeout(timeout);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/favicon.png')} style={styles.logo} />
+      <Image source={require('@/assets/favicon.png')} style={styles.logo} />
       <Text style={styles.text}>Welcome to Smart Attendance</Text>
     </View>
   );

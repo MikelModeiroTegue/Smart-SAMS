@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import  checkGeofenceStatus  from '../services/Geofencing';
+import  checkGeofenceStatus  from '@/services/Geofencing';
 
 export  function useGeofence() {
   const [status, setStatus] = useState({

@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useGeofence } from '../hooks/useGeofence';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useGeofence } from '@/hooks/useGeofence';
+import { Link } from 'expo-router';
 
-export default function GeofenceScreen() {
+export default function GeofenceTestScreen() {
   const { isInsidePolygon, isMocked, isEmulator, error } = useGeofence();
 
   return (
@@ -18,6 +19,13 @@ export default function GeofenceScreen() {
           You are {isInsidePolygon ? ' inside' : '❌ outside'} the geofence.
         </Text>
       )}
+
+      <Link href="/BiometricAuthScreen" asChild>
+                  <TouchableOpacity style={styles.button}>
+                    <Text style={styles.text}>Go to Biometric Verification</Text>
+                  </TouchableOpacity>
+      </Link>
+
     </View>
   );
 }

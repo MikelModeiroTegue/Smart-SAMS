@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { useGoogleAuthentication } from '../services/GoogleAuth';
+import { useGoogleAuthentication } from '@/services/GoogleAuth';
 import { StatusBar } from 'expo-status-bar';
+import { Link } from 'expo-router';
 
-export default function AuthenticationScreen() {
+export default function GoogleAuthScreen() {
   const { userInfo, promptAsync, request } = useGoogleAuthentication();
 
   return (
@@ -15,7 +16,13 @@ export default function AuthenticationScreen() {
           )}
           <Text style={styles.text}>Welcome, {userInfo.name}!</Text>
           <Text style={styles.text}>Email: {userInfo.email}</Text>
-        </View>
+          
+          <Link href="/GeofenceTestScreen" asChild>
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.text}>Go to Geofence Test Screen</Text>
+            </TouchableOpacity>
+       </Link>
+    </View>
       ) : (
         <>
           <Text style={styles.text}>Please sign in to continue</Text>
@@ -43,6 +50,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  button: {
+    padding: 12,
+    backgroundColor: '#007bff',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
   },
   profileContainer: {
     alignItems: 'center',

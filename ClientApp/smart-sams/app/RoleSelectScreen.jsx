@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import RoleCard from '../components/RoleCard';
+import { View, Text, StyleSheet,  } from 'react-native';
+import RoleCard from '@/components/RoleCard';
+import { useRouter } from 'expo-router';
 
-export default function RoleSelectScreen({ navigation }) {
+export default function RoleSelectScreen() {
+  const router = useRouter();
+
   const handleSelect = (role) => {
-    navigation.navigate('GoogleAuth', { role });
+    router.push({ pathname: '/GoogleAuthScreen', params: { role } });
   };
 
   return (
