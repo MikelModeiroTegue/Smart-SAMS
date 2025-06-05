@@ -35,7 +35,14 @@ export default function GoogleAuthScreen() {
               style={styles.googleIcon}
             />
             <Text style={styles.googleButtonText}>Sign in with Google</Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
+            
+            <Link href="/GeofenceTestScreen" asChild>
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.text}>Go to Geofence Test Screen</Text>
+            </TouchableOpacity>
+       </Link>
+
         </>
       )}
 

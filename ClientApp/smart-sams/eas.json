@@ -1,36 +1,21 @@
 {
     "cli": {
-      "version": ">=3.0.0"
+      "version": ">=3.0.0",
+      "appVersionSource": "local"
     },
     "build": {
       "development": {
         "developmentClient": true,
         "distribution": "internal",
+        "ios": {
+        "simulator": false},
         "env": {
         "androidClientId": "727020871905-vdbaglofnavlg9pkl0tjtspbhj5lc4rk.apps.googleusercontent.com",
         "iosClientId": "727020871905-5ue1lt3fmtlv3h2qegjfrdgcdr1tg5d4.apps.googleusercontent.com",
-        "webClientId": "727020871905-33jrbrr95noe3cg4k7381rhod9dodjda.apps.googleusercontent.com"
+        "webClientId": "727020871905-33jrbrr95noe3cg4k7381rhod9dodjda.apps.googleusercontent.com",
+        "redirectUri": "https://auth.expo.io/@modeiro/smartsams"
         }
       }
-      },
-      "preview": {
-        "distribution": "internal"
-      },
-      "production": {
-        "android": {
-          "buildType": "apk"
-        },
-        "ios": {
-          "simulator": true
-        },
-        "env": {
-        "ANDROID_CLIENT_ID": "727020871905-vdbaglofnavlg9pkl0tjtspbhj5lc4rk.apps.googleusercontent.com",
-        "IOS_CLIENT_ID": "727020871905-5ue1lt3fmtlv3h2qegjfrdgcdr1tg5d4.apps.googleusercontent.com",
-        "WEB_CLIENT_ID": "727020871905-33jrbrr95noe3cg4k7381rhod9dodjda.apps.googleusercontent.com"
-        }
-      },
-    "submit": {
-      "production": {}
-    }
+      }
   }
   

@@ -31,7 +31,7 @@ export default function BiometricAuthScreen() {
               />
             </TouchableOpacity>
             <Text style={styles.instruction}>
-              Tap the fingerprint to authenticate and Clock-In
+              Tap the faceID to authenticate and Clock-In
             </Text>
           </>
         )}

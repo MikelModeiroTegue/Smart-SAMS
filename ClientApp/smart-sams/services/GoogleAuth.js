@@ -3,13 +3,18 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { makeRedirectUri } from 'expo-auth-session';
+import * as AuthSession from 'expo-auth-session';
 
 
 // Ensure the redirect URI is set up correctly for web and native platforms
-const redirectUri = makeRedirectUri({
-    useProxy: true,
-  });
+// const redirectUri = Constants.expoConfig.extra.redirectUri 
+
+const redirectUri = AuthSession.makeRedirectUri({
+  useProxy: true, // Use proxy for redirect URI
+})
+  
+const redirectUrI = redirectUri.replace(/[_-]/g, '');
+
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -19,12 +24,12 @@ const androidClientId = Constants.expoConfig.extra.androidClientId;
 
 export function useGoogleAuthentication() {
   const [userInfo, setUserInfo] = React.useState(null);
-
+  console.log(redirectUrI)
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId,
     iosClientId,
     webClientId,
-    redirectUri
+    redirectUrI, // Use proxy for redirect URI
   });
 
   // Load user if already signed in

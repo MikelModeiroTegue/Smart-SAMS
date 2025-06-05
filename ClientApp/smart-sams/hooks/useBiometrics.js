@@ -15,12 +15,20 @@ export function useBiometricAuth() {
         alert("This device doesn't support biometric auth");
         return;
       }
+        const enrolled = await LocalAuthentication.isEnrolledAsync();
+        const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+
+        console.log("Enrolled biometric types:", enrolled);
+        console.log("Supported biometric types:", supportedTypes);
 
       const response = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Authenticate to Clock-In',
-        fallbackLabel: 'Use Passcode',
+        cancelLabel: 'Cancel',
+        fallbackLabel: 'Use Passcode', // Important to force biometric scan
       });
 
+        console.log("Biometric authentication response:", response);
+        
       if (response.success) {
         setUnlocked(true);
       } else {

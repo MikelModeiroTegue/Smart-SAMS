@@ -3,13 +3,15 @@ export default ({ config }) => ({
   expo: {
     ...config.expo,
     name: "smart-sams",
-    scheme: "smart-sams",
+    scheme: "smartsams",
     slug: "smart-sams",
+    owner: "modeiro",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
+    appId: "e17dd81f-fbe6-4abd-a3c3-505c955091ba",
     splash: {
       image: "./assets/favicon.png",
       resizeMode: "contain",
@@ -18,6 +20,9 @@ export default ({ config }) => ({
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.anonymous.smartsams",
+      infoPlist: {
+        NSFaceIDUsageDescription: "This app uses Face ID to authenticate you securely.",
+      },
     },
     android: {
       adaptiveIcon: {
@@ -48,6 +53,7 @@ export default ({ config }) => ({
       androidClientId: process.env.androidClientId,
       iosClientId: process.env.iosClientId,
       webClientId: process.env.webClientId,
+      redirectUri: process.env.redirectUri || "https://auth.expo.io/@modeiro/smartsams",
     },
   },
 });
