@@ -39,6 +39,7 @@ export default ({ config }) => ({
     plugins: [
       "expo-web-browser",
       "expo-router",
+      "expo-secure-store"
       [
         "expo-local-authentication",
         {

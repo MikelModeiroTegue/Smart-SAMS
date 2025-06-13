@@ -1,36 +1,9 @@
 import * as React from 'react';
 import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as AuthSession from 'expo-auth-session';
-
-
-// Ensure the redirect URI is set up correctly for web and native platforms
-// const redirectUri = Constants.expoConfig.extra.redirectUri 
-
-const redirectUri = AuthSession.makeRedirectUri({
-  useProxy: true, // Use proxy for redirect URI
-})
-  
-const redirectUrI = redirectUri.replace(/[_-]/g, '');
-
-
-WebBrowser.maybeCompleteAuthSession();
-
-const webClientId = Constants.expoConfig.extra.webClientId;
-const iosClientId = Constants.expoConfig.extra.iosClientId;
-const androidClientId = Constants.expoConfig.extra.androidClientId;
 
 export function useGoogleAuthentication() {
   const [userInfo, setUserInfo] = React.useState(null);
-  console.log(redirectUrI)
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId,
-    iosClientId,
-    webClientId,
-    redirectUrI, // Use proxy for redirect URI
-  });
 
   // Load user if already signed in
   React.useEffect(() => {
@@ -43,38 +16,43 @@ export function useGoogleAuthentication() {
     loadStoredUser();
   }, []);
 
-  // Handle sign-in response
-  const handleSignInWithGoogle = async () => {
-    if (response?.type === 'success' && response?.params?.access_token) {
-      try {
-        const { access_token } = response.params;
-        await AsyncStorage.setItem('google_auth_token', access_token);
+  // Trigger server-side Google OAuth
+  const signInWithGoogle = async () => {
+    try {
+      // Open browser to initiate OAuth flow on server
+      const result = await WebBrowser.openAuthSessionAsync(
+        'http://localhost:3000/auth/google',
+        'http://localhost:3000/auth/google/callback'
+      );
 
-        const userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-          headers: { Authorization: `Bearer ${access_token}` },
+      if (result.type === 'success') {
+        // Fetch user data from server callback
+        const response = await fetch('http://localhost:3000/auth/google/callback', {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+          },
         });
 
-        const userInfoData = await userInfoResponse.json();
-        await AsyncStorage.setItem('@user', JSON.stringify(userInfoData));
-        setUserInfo(userInfoData);
-        console.log
-        return userInfoData;
-      } catch (err) {
-        console.error('Failed fetching user info:', err);
+        const data = await response.json();
+        if (data.user) {
+          await AsyncStorage.setItem('@user', JSON.stringify(data.user));
+          setUserInfo(data.user);
+          return data.user;
+        } else {
+          throw new Error(data.error || 'Authentication failed');
+        }
+      } else {
+        throw new Error('Authentication cancelled or failed');
       }
-    } else if (response?.type === 'error') {
-      console.error('Google Sign-In Error:', response.params?.error);
+    } catch (error) {
+      console.error('Sign-in failed:', error.message);
+      throw error;
     }
   };
 
-    React.useEffect(() => {
-        console.log('Google response:', response)
-    handleSignInWithGoogle();
-  }, [response]);
-
   return {
     userInfo,
-    promptAsync,
-    request
+    signInWithGoogle,
   };
 }

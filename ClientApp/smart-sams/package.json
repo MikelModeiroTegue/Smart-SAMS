@@ -20,7 +20,7 @@
     "expo": "^53.0.10",
     "expo-auth-session": "^6.2.0",
     "expo-constants": "~17.1.6",
-    "expo-crypto": "~14.1.4",
+    "expo-crypto": "~14.1.5",
     "expo-device": "~7.1.4",
     "expo-linking": "~7.1.5",
     "expo-local-authentication": "~16.0.4",
@@ -37,7 +37,8 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
-    "react-native-web": "^0.20.0"
+    "react-native-web": "^0.20.0",
+    "expo-secure-store": "~14.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

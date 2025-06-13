@@ -3,6 +3,9 @@
 # dependencies
 /node_modules
 backend/node_modules
+admin-web-pannel/node_modules
+ClientApp/smart-sams/node_modules
+
 /.pnp
 .pnp.js
 

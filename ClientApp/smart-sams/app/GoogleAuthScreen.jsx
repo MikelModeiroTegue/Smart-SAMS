@@ -3,13 +3,37 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useGoogleAuthentication } from '@/services/GoogleAuth';
 import { StatusBar } from 'expo-status-bar';
 import { Link } from 'expo-router';
+import StudentRegistrationForm from '../components/StudentRegistrationForm';
+
 
 export default function GoogleAuthScreen() {
-  const { userInfo, promptAsync, request } = useGoogleAuthentication();
+  const { userInfo, signInWithGoogle } = useGoogleAuthentication();
+  const [showRegistration, setShowRegistration] = useState(false);
+
+  const handleSignIn = async () => {
+    try {
+      const user = await signInWithGoogle();
+      if (user.newUser) {
+        setShowRegistration(true);
+      }
+      console.log('Signed in user:', user);
+      
+    } catch (error) {
+      console.error('Sign-in error:', error.message);
+    }
+  };
+
+  const handleRegistrationComplete = (registeredUser) => {
+    setShowRegistration(false);
+    // Update userInfo in context or state if needed
+  };
 
   return (
     <View style={styles.container}>
-      {userInfo ? (
+      {showRegistration ? (
+        <StudentRegistrationForm user={userInfo} onRegister={handleRegistrationComplete} />
+      ) : userInfo && !userInfo.newUser ?
+      (
         <View style={styles.profileContainer}>
           {userInfo.picture && (
             <Image source={{ uri: userInfo.picture }} style={styles.profileImage} />
@@ -27,7 +51,7 @@ export default function GoogleAuthScreen() {
         <>
           <Text style={styles.text}>Please sign in to continue</Text>
 
-         <TouchableOpacity disabled={!request} style={styles.googleButton} onPress={() => { if (request) promptAsync() }}>
+         <TouchableOpacity disabled={!request} style={styles.googleButton} onPress={handleSignIn()}>
             <Image
               source={{
                 uri: 'https://developers.google.com/identity/images/g-logo.png',

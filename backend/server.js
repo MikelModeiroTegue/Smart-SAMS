@@ -1,4 +1,14 @@
 const app = require('./api');
-const PORT = 4000;
+const { sequelize } = require('./config/db');
+require('dotenv').config();
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+// Start server and sync database
+const PORT = process.env.PORT || 3000;
+sequelize.sync({ alter: true }).then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}).catch((error) => {
+  console.error('Failed to sync database:', error);
+});
