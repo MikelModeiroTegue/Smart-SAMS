@@ -24,8 +24,7 @@ class TimetableService {
 
       // Step 2: Populate Courses
       const courses = timetable.map(item => ({
-        code: item['Course Code'],
-        semester_period: `${item.Semester}_${item.Year}`,
+        course_ID: `${item['Course Code']}-${item.Semester}_${item.Year}`, // Combine into course_ID
         department: item.Department,
         title: item['Course Title'],
         level: item.Semester.toString(),
@@ -54,8 +53,7 @@ class TimetableService {
       // Step 4: Populate Course Sessions
       const sessions = timetable.map(item => ({
         ID: uuidv4(),
-        course_code: item['Course Code'],
-        semester_period: `${item.Semester}_${item.Year}`,
+        course_ID: `${item['Course Code']}-${item.Semester}_${item.Year}`, // Use course_ID
         day: item.Day,
         start_time: this.convertTime(item['Start Time']),
         end_time: this.convertTime(item['End Time']),
@@ -66,19 +64,16 @@ class TimetableService {
       // Step 5: Populate Course Assignments
       const assignments = [];
       timetable.forEach(item => {
-        const semesterPeriod = `${item.Semester}_${item.Year}`;
-        const courseCode = item['Course Code'];
+        const courseID = `${item['Course Code']}-${item.Semester}_${item.Year}`; // Generate course_ID
         if (item.Instructor1) {
           assignments.push({
-            course_code: courseCode,
-            semester_period: semesterPeriod,
+            course_ID: courseID,
             instructor_email: this.generateEmail(item.Instructor1),
           });
         }
         if (item.Instructor2) {
           assignments.push({
-            course_code: courseCode,
-            semester_period: semesterPeriod,
+            course_ID: courseID,
             instructor_email: this.generateEmail(item.Instructor2),
           });
         }

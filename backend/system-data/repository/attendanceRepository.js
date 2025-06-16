@@ -16,10 +16,10 @@ class AttendanceRepository {
   }
 
   // Get attendance data for a specific course
-  async getAttendanceByCourse(courseCode, semesterPeriod) {
+  async getAttendanceByCourse(courseID) {
     try {
       const course = await Course.findOne({ 
-        where: { code: courseCode, semester_period: semesterPeriod } 
+        where: { course_ID: courseID } 
       });
       if (!course) {
         throw new Error('Course not found');
@@ -29,7 +29,7 @@ class AttendanceRepository {
           { model: Student },
           { 
             model: CourseSession, 
-            where: { course_code: courseCode, semester_period: semesterPeriod },
+            where: { course_ID: courseID },
             include: [{ model: Course }],
           },
         ],

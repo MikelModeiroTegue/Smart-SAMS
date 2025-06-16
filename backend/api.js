@@ -1,12 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const routes = require('./routes/routes');
+const routes = require('./system-data/routes/routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./fabric-client/config/swaggerConfig');
 const authRoutes = require('./system-data/routes/authRoutes');
 const session = require('express-session');
-const passport = require('./strategies/googleStrategy');
+const passport = require('./logic/authLogic');
 
 const app = express();
 app.use(cors());

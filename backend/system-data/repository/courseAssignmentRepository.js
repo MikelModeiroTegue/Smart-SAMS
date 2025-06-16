@@ -1,11 +1,11 @@
 const { CourseAssignment, Instructor, Course } = require('../models/model');
 
 class CourseAssignmentRepository {
-  // This can be used if additional course assignment logic is needed
-  async getAssignmentsByCourse(courseCode, semesterPeriod) {
+  // Get assignments for a specific course
+  async getAssignmentsByCourse(courseID) {
     try {
       return await CourseAssignment.findAll({
-        where: { course_code: courseCode, semester_period: semesterPeriod },
+        where: { course_ID: courseID },
         include: [{ model: Instructor }],
       });
     } catch (error) {
@@ -13,22 +13,22 @@ class CourseAssignmentRepository {
     }
   }
     
+  // Bulk upsert course assignments
   async bulkUpsertAssignments(assignments) {
     try {
       const upsertPromises = assignments.map(async assignment => {
         const course = await Course.findOne({
-          where: { code: assignment.course_code, semester_period: assignment.semester_period }
+          where: { course_ID: assignment.course_ID }
         });
         if (!course) {
-          throw new Error(`Course ${assignment.course_code} not found`);
+          throw new Error(`Course ${assignment.course_ID} not found`);
         }
         const instructor = await Instructor.findByPk(assignment.instructor_email);
         if (!instructor) {
           throw new Error(`Instructor ${assignment.instructor_email} not found`);
         }
         return CourseAssignment.upsert({
-          course_code: assignment.course_code,
-          semester_period: assignment.semester_period,
+          course_ID: assignment.course_ID,
           instructor_email: assignment.instructor_email,
         });
       });

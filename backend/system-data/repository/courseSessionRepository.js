@@ -2,10 +2,10 @@ const { CourseSession, Course, Venue } = require('../models/model');
 
 class CourseSessionRepository {
   // Edit course schedule
-  async editCourseSchedule(sessionId, { courseCode, semesterPeriod, day, startTime, endTime, vName }) {
+  async editCourseSchedule(sessionId, { courseID, day, startTime, endTime, vName }) {
     try {
       const course = await Course.findOne({ 
-        where: { code: courseCode, semester_period: semesterPeriod } 
+        where: { course_ID: courseID } 
       });
       if (!course) {
         throw new Error('Course not found');
@@ -16,8 +16,7 @@ class CourseSessionRepository {
       }
       await CourseSession.upsert({
         ID: sessionId,
-        course_code: courseCode,
-        semester_period: semesterPeriod,
+        course_ID: courseID,
         day,
         start_time: startTime,
         end_time: endTime,
@@ -30,16 +29,16 @@ class CourseSessionRepository {
   }
 
   // Get course schedules for a specific course
-  async getCourseSchedules(courseCode, semesterPeriod) {
+  async getCourseSchedules(courseID) {
     try {
       const course = await Course.findOne({ 
-        where: { code: courseCode, semester_period: semesterPeriod } 
+        where: { course_ID: courseID } 
       });
       if (!course) {
         throw new Error('Course not found');
       }
       return await CourseSession.findAll({
-        where: { course_code: courseCode, semester_period: semesterPeriod },
+        where: { course_ID: courseID },
         include: [{ model: Venue }],
       });
     } catch (error) {
@@ -62,10 +61,10 @@ class CourseSessionRepository {
     try {
       const upsertPromises = sessions.map(async session => {
         const course = await Course.findOne({
-          where: { code: session.course_code, semester_period: session.semester_period }
+          where: { course_ID: session.course_ID }
         });
         if (!course) {
-          throw new Error(`Course ${session.course_code} not found`);
+          throw new Error(`Course ${session.course_ID} not found`);
         }
         const venue = await Venue.findByPk(session.v_name);
         if (!venue) {
@@ -73,8 +72,7 @@ class CourseSessionRepository {
         }
         return CourseSession.upsert({
           ID: session.ID,
-          course_code: session.course_code,
-          semester_period: session.semester_period,
+          course_ID: session.course_ID,
           day: session.day,
           start_time: session.start_time,
           end_time: session.end_time,

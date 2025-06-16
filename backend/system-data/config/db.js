@@ -1,11 +1,5 @@
 require('dotenv').config();
-const { createClient } = require('@supabase/supabase-js');
 const { Sequelize } = require('sequelize');
-
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-  auth: { autoRefreshToken: true, persistSession: false },
-  realtime: { params: { eventsPerSecond: 10 } },
-});
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
@@ -25,4 +19,8 @@ async function testConnection() {
 
 testConnection();
 
-module.exports = { supabase, sequelize };
+module.exports = { sequelize };
+
+testConnection();
+
+module.exports = { sequelize };

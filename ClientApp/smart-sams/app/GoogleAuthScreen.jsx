@@ -4,6 +4,8 @@ import { useGoogleAuthentication } from '@/services/GoogleAuth';
 import { StatusBar } from 'expo-status-bar';
 import { Link } from 'expo-router';
 import StudentRegistrationForm from '../components/StudentRegistrationForm';
+import { useState } from 'react';
+
 
 
 export default function GoogleAuthScreen() {
@@ -51,7 +53,7 @@ export default function GoogleAuthScreen() {
         <>
           <Text style={styles.text}>Please sign in to continue</Text>
 
-         <TouchableOpacity disabled={!request} style={styles.googleButton} onPress={handleSignIn()}>
+         <TouchableOpacity style={styles.googleButton} onPress={handleSignIn}>
             <Image
               source={{
                 uri: 'https://developers.google.com/identity/images/g-logo.png',

@@ -1,4 +1,4 @@
-const { Course, CourseSession, Enrollment } = require('../models/model');
+const { Course, Enrollment, Student } = require('../models/model');
 
 class CourseRepository {
   // Get all courses
@@ -11,16 +11,16 @@ class CourseRepository {
   }
 
   // Get all students enrolled in a course
-  async getStudentsEnrolled(courseCode, semesterPeriod) {
+  async getStudentsEnrolled(courseID) {
     try {
       const course = await Course.findOne({ 
-        where: { code: courseCode, semester_period: semesterPeriod } 
+        where: { course_ID: courseID } 
       });
       if (!course) {
         throw new Error('Course not found');
       }
       return await Enrollment.findAll({
-        where: { course_code: courseCode, semester_period: semesterPeriod },
+        where: { course_ID: courseID },
         include: [{ model: Student }],
       });
     } catch (error) {
@@ -32,8 +32,7 @@ class CourseRepository {
     try {
       const upsertPromises = courses.map(course =>
         Course.upsert({
-          code: course.code,
-          semester_period: course.semester_period,
+          course_ID: course.course_ID,
           department: course.department,
           title: course.title,
           level: course.level,

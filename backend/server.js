@@ -1,13 +1,13 @@
 const app = require('./api');
-const { sequelize } = require('./config/db');
+const { sequelize } = require('./system-data/config/db');
 require('dotenv').config();
 
-
-// Start server and sync database
 const PORT = process.env.PORT || 3000;
-sequelize.sync({ alter: true }).then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+const HOST = '0.0.0.0';  // Listen on all network interfaces
+
+sequelize.sync({ force: true }).then(() => {
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
   });
 }).catch((error) => {
   console.error('Failed to sync database:', error);

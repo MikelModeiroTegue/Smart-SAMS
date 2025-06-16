@@ -25,10 +25,10 @@ class InstructorRepository {
   }
 
   // Edit assigned instructor for a course
-  async editAssignedInstructor(courseCode, semesterPeriod, instructorEmail) {
+  async editAssignedInstructor(courseID, instructorEmail) {
     try {
       const course = await Course.findOne({ 
-        where: { code: courseCode, semester_period: semesterPeriod } 
+        where: { course_ID: courseID } 
       });
       if (!course) {
         throw new Error('Course not found');
@@ -38,8 +38,7 @@ class InstructorRepository {
         throw new Error('Instructor not found');
       }
       await CourseAssignment.upsert({
-        course_code: courseCode,
-        semester_period: semesterPeriod,
+        course_ID: courseID,
         instructor_email: instructorEmail,
       });
       return { message: 'Instructor assignment updated successfully' };
