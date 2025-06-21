@@ -37,6 +37,42 @@ class StudentRepository {
       throw new Error(`Failed to delete student: ${error.message}`);
     }
   }
-}
+
+    // Get student by email
+    async getStudentByEmail(email) {
+      try {
+        if (!email || typeof email !== 'string') {
+          throw new Error('Invalid email');
+        }
+        const student = await Student.findOne({
+          where: { email },
+          attributes: ['matricule', 'name', 'email'],
+        });
+        if (!student) {
+          throw new Error('Student not found');
+        }
+        return student;
+      } catch (error) {
+        throw new Error(`Failed to fetch student: ${error.message}`);
+      }
+    }
+  
+    // Get student by matricule
+    async getStudentByMatricule(matricule) {
+      try {
+        if (!matricule || typeof matricule !== 'string') {
+          throw new Error('Invalid matricule');
+        }
+        const student = await Student.findByPk(matricule);
+        if (!student) {
+          throw new Error('Student not found');
+        }
+        return student;
+      } catch (error) {
+        throw new Error(`Failed to fetch student: ${error.message}`);
+      }
+    }
+  }
+
 
 module.exports = new StudentRepository();

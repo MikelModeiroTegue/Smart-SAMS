@@ -3,17 +3,17 @@ export default ({ config }) => ({
   expo: {
     ...config.expo,
     name: "smart-sams",
-    scheme: "smartsams",
+    scheme: "smart-sams",
     slug: "smart-sams",
     owner: "modeiro",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/icon.png",
+    icon: "./assets/icon.jpg",
     userInterfaceStyle: "light",
     newArchEnabled: true,
     appId: "e17dd81f-fbe6-4abd-a3c3-505c955091ba",
     splash: {
-      image: "./assets/favicon.png",
+      image: "./assets/splash-icon.jpg",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
@@ -21,20 +21,22 @@ export default ({ config }) => ({
       supportsTablet: true,
       bundleIdentifier: "com.anonymous.smartsams",
       infoPlist: {
-        NSFaceIDUsageDescription: "This app uses Face ID to authenticate you securely.",
+        NSFaceIDUsageDescription:
+          "This app uses Face ID to authenticate you securely.",
+        UIViewControllerBasedStatusBarAppearance: false,
       },
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
+        foregroundImage: "./assets/splash-icon.jpg",
         backgroundColor: "#ffffff",
       },
       edgeToEdgeEnabled: true,
       package: "com.anonymous.smartsams",
     },
     web: {
-      favicon: "./assets/favicon.png",
-      "bundler": "metro",
+      favicon: "./assets/icon.jpg",
+      bundler: "metro",
     },
     plugins: [
       "expo-web-browser",
@@ -43,9 +45,10 @@ export default ({ config }) => ({
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID to Clock-In attendance."
-        }
-      ]
+          faceIDPermission:
+            "Allow $(PRODUCT_NAME) to use Face ID to Clock-In attendance.",
+        },
+      ],
     ],
     extra: {
       eas: {
@@ -54,7 +57,8 @@ export default ({ config }) => ({
       androidClientId: process.env.androidClientId,
       iosClientId: process.env.iosClientId,
       webClientId: process.env.webClientId,
-      redirectUri: process.env.redirectUri || "https://auth.expo.io/@modeiro/smartsams",
+      redirectUri:
+        process.env.redirectUri || "https://auth.expo.io/@modeiro/smartsams",
     },
   },
 });

@@ -1,24 +1,22 @@
 const connectToGateway = require('../gateway/fabricGateway');
 
 exports.clockIn = async (req, res) => {
-    const { userId, name, courseCode, timestamp, sessionId } = req.body;
+    const { studentName, matricule, email, courseSessionID } = req.body;
 
     // Basic input validation
-    if (!userId || !name || !courseCode || !timestamp || !sessionId) {
+    if (!studentName || !matricule || !courseSessionID || !email ) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
-        const { gateway, contract } = await connectToGateway(userId);
+        const { gateway, contract } = await connectToGateway(email);
 
         // Invoke clockIn with updated params
         const result = await contract.submitTransaction(
             'clockIn',
-            userId,
-            name,
-            courseCode,
-            timestamp,
-            sessionId
+            Name = studentName,
+            sessionID = courseSessionID,
+            studentID = matricule,
         );
 
         await gateway.disconnect();

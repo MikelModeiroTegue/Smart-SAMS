@@ -11,60 +11,74 @@ class TimetableService {
   async loadTimetable() {
     try {
       // Read data.json
-      const filePath = path.join(__dirname, '../system-data/timetable.json');
-      const rawData = await fs.readFile(filePath, 'utf8');
+      const filePath = path.join(__dirname, "../system-data/timetable.json");
+      const rawData = await fs.readFile(filePath, "utf8");
       const { timetable } = JSON.parse(rawData);
 
       // Step 1: Populate Venues
-      const venues = [...new Set(timetable.map(item => item.Hall))].map(hall => ({
-        v_name: hall,
-        geolocations: null,
-      }));
+      const venues = [...new Set(timetable.map((item) => item.Hall))].map(
+        (hall) => ({
+          v_name: hall,
+          geolocations: null,
+        })
+      );
       await venueRepository.bulkUpsertVenues(venues);
 
       // Step 2: Populate Courses
-      const courses = timetable.map(item => ({
-        course_ID: `${item['Course Code']}-${item.Semester}_${item.Year}`, // Combine into course_ID
+      const courses = timetable.map((item) => ({
+        course_ID: `${item["Course Code"]}-${item.Semester}_${item.Year}`, // Combine into course_ID
         department: item.Department,
-        title: item['Course Title'],
-        level: item.Semester.toString(),
+        title: item["Course Title"],
+        level: item.Level,
       }));
       await courseRepository.bulkUpsertCourses(courses);
 
       // Step 3: Populate Instructors
       const instructors = [];
-      timetable.forEach(item => {
+
+      timetable.forEach((item) => {
         if (item.Instructor1) {
+          const email1 = item["Email-1"]
+            ? item["Email-1"]
+            : this.generateEmail(item.Instructor1);
           instructors.push({
-            email: this.generateEmail(item.Instructor1),
             name: item.Instructor1,
+            email: email1,
           });
         }
+
         if (item.Instructor2) {
+          const email2 = item["Email-2"]
+            ? item["Email-2"]
+            : this.generateEmail(item.Instructor2);
           instructors.push({
-            email: this.generateEmail(item.Instructor2),
             name: item.Instructor2,
+            email: email2,
           });
         }
       });
-      const uniqueInstructors = [...new Map(instructors.map(i => [i.email, i])).values()];
+
+      // Ensure uniqueness by email
+      const uniqueInstructors = [
+        ...new Map(instructors.map((i) => [i.email, i])).values(),
+      ];
       await instructorRepository.bulkUpsertInstructors(uniqueInstructors);
 
       // Step 4: Populate Course Sessions
-      const sessions = timetable.map(item => ({
+      const sessions = timetable.map((item) => ({
         ID: uuidv4(),
-        course_ID: `${item['Course Code']}-${item.Semester}_${item.Year}`, // Use course_ID
+        course_ID: `${item["Course Code"]}-${item.Semester}_${item.Year}`, // Use course_ID
         day: item.Day,
-        start_time: this.convertTime(item['Start Time']),
-        end_time: this.convertTime(item['End Time']),
+        start_time: this.convertTime(item["Start Time"]),
+        end_time: this.convertTime(item["End Time"]),
         v_name: item.Hall,
       }));
       await courseSessionRepository.bulkUpsertCourseSessions(sessions);
 
       // Step 5: Populate Course Assignments
       const assignments = [];
-      timetable.forEach(item => {
-        const courseID = `${item['Course Code']}-${item.Semester}_${item.Year}`; // Generate course_ID
+      timetable.forEach((item) => {
+        const courseID = `${item["Course Code"]}-${item.Semester}_${item.Year}`; // Generate course_ID
         if (item.Instructor1) {
           assignments.push({
             course_ID: courseID,
@@ -80,7 +94,7 @@ class TimetableService {
       });
       await courseAssignmentRepository.bulkUpsertAssignments(assignments);
 
-      return { message: 'Timetable data loaded successfully' };
+      return { message: "Timetable data loaded successfully" };
     } catch (error) {
       throw new Error(`Failed to load timetable: ${error.message}`);
     }

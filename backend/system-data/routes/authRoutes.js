@@ -9,16 +9,30 @@ router.get('/google', passport.authenticate('google', {
 }));
 
 // Google OAuth callback
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/auth/failure' }),
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/auth/failure" }),
   async (req, res) => {
     try {
-      // Process user with authService
       const user = await authService.processGoogleUser(req.user);
-      // Send user data to client (or redirect with token)
-      res.json({ user });
+
+      console.log("User processed successfully:", user);
+      // Use expo-auth-session compatible redirect
+      const redirectUrl = new URL("https://auth.expo.io/@modeiro/smart-sams");
+      redirectUrl.searchParams.append("user", JSON.stringify(user));
+
+      // For iOS compatibility, we need to use a specific format
+      return res.redirect(
+        `exp://auth.expo.io/@modeiro/smart-sams?user=${encodeURIComponent(
+          JSON.stringify(user)
+        )}`
+      );
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      return res.redirect(
+        `exp://auth.expo.io/@modeiro/smart-sams?error=${encodeURIComponent(
+          error.message
+        )}`
+      );
     }
   }
 );
@@ -57,9 +71,5 @@ router.post('/register-student', async (req, res) => {
     res.status(401).json({ error: 'Authentication failed' });
   });
 
-// Auth failure endpoint
-router.get('/failure', (req, res) => {
-  res.status(401).json({ error: 'Authentication failed' });
-});
 
 module.exports = router;

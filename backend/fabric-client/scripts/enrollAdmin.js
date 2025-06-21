@@ -15,7 +15,7 @@ async function main() {
         const ca = new FabricCAServices(caInfo.url);
 
         // Create a wallet to manage identities
-        const walletPath = path.join(__dirname, 'wallet');
+        const walletPath = path.join(__dirname, '../wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 

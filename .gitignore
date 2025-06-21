@@ -5,6 +5,8 @@
 backend/node_modules
 admin-web-pannel/node_modules
 ClientApp/smart-sams/node_modules
+ClientApp/smart-sams/.env
+
 backend/.env
 /.pnp
 .pnp.js
