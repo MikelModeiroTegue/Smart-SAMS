@@ -37,7 +37,7 @@ export function useGoogleAuthentication() {
   const signInWithGoogle = async () => {
     try {
       // Use ngrok URL for development
-      const authUrl = "https://7f14-129-0-205-32.ngrok-free.app/auth/google";
+      const authUrl = "https://2b1a-129-0-102-36.ngrok-free.app/auth/google";
 
       // Use expo's auth proxy URL as redirect
       const redirectUrl = "exp://auth.expo.io/@modeiro/smart-sams";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import axios from "axios";
+import LottieView from "lottie-react-native";
 
 export default function AttendanceScreen() {
     const { data } = useLocalSearchParams();
@@ -27,15 +28,23 @@ export default function AttendanceScreen() {
         email,
         courseSessionID,
     } = JSON.parse(data);
-    const { unlocked, loading, authenticate } = useBiometricAuth();
+    const {
+        unlocked,
+        loading: biometricLoading,
+        authenticate,
+    } = useBiometricAuth();
     const router = useRouter();
+    const [transactionLoading, setTransactionLoading] = useState(false);
 
     const markAttendance = async () => {
         try {
             await authenticate();
             if (unlocked) {
+                setTransactionLoading(true);
+
                 // Step 1: Request blockchain transaction
-                const blockchainResponse = await axios.post("https://7f14-129-0-205-32.ngrok-free.app/api/transaction/clockin",
+                const blockchainResponse = await axios.post(
+                    "https://2b1a-129-0-102-36.ngrok-free.app/api/transaction/clockin",
                     {
                         studentName,
                         matricule,
@@ -44,36 +53,40 @@ export default function AttendanceScreen() {
                     }
                 );
 
-                if (blockchainResponse.data && blockchainResponse.data.txId) {
-                    const txId = blockchainResponse.data.txId;
+                if (blockchainResponse.data?.transactionId) {
+                    const txId = blockchainResponse.data.transactionId;
+
+                    console.log("Blockchain transaction ID:", txId);
 
                     // Step 2: Store attendance in attendance table
-                    const attendanceResponse = await api.post("/admin/attendance/store", {
+                    const attendanceResponse = await axios.post(
+                      "https://2b1a-129-0-102-36.ngrok-free.app/api/admin/attendance/store",
+                      {
                         courseSessionSchedule_ID: courseSessionID,
                         student_matricule: matricule,
-                        txId,
-                        date: new Date().toISOString(),
-                    });
+                        blockchainTxID: txId,
+                        date: new Date().toISOString()
+                      }
+                    );
 
-                    if (attendanceResponse.data && attendanceResponse.data.success) {
+                    if (attendanceResponse.data?.success) {
                         Alert.alert("Success", `Attendance marked for ${courseID}`, [
-                            {
-                                text: "OK",
-                                onPress: () => router.push("/ClockIn"),
-                            },
+                            { text: "OK", onPress: () => router.push("/ClockIn") },
                         ]);
                     } else {
                         throw new Error("Failed to store attendance record");
                     }
                 } else {
-                    throw new Error("Blockchain transaction failed or no TxID returned");
+                    throw new Error("Blockchain transaction failed");
                 }
             }
         } catch (error) {
-            console.error("Attendance marking failed:", error.message);
             Alert.alert("Error", `Failed to mark attendance: ${error.message}`, [
                 { text: "OK" },
             ]);
+            console.error("Attendance error:", error);
+        } finally {
+            setTransactionLoading(false);
         }
     };
 
@@ -111,16 +124,31 @@ export default function AttendanceScreen() {
                     </View>
                 </View>
 
-                {loading ? (
+                {biometricLoading ? (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color="#6a11cb" />
                         <Text style={styles.loadingText}>Verifying your identity...</Text>
+                    </View>
+                ) : transactionLoading ? (
+                    <View style={styles.transactionProcessingContainer}>
+                        <LottieView
+                            autoPlay
+                            loop
+                            source={require("../../assets/blockchain-loading.json")}
+                            style={styles.lottieAnimation}
+                        />
+                        <Text style={styles.processingText}>
+                            Processing Blockchain Transaction...
+                        </Text>
+                        <Text style={styles.processingSubtext}>
+                            This may take a few moments
+                        </Text>
                     </View>
                 ) : (
                     <TouchableOpacity
                         style={styles.attendanceButton}
                         onPress={markAttendance}
-                    // disabled={loading}
+                        disabled={biometricLoading || transactionLoading}
                     >
                         <MaterialIcons name="how-to-reg" size={24} color="white" />
                         <Text style={styles.buttonText}>Mark Attendance</Text>
@@ -211,5 +239,29 @@ const styles = StyleSheet.create({
         marginTop: 15,
         color: "#7f8c8d",
         fontSize: 16,
+    },
+    transactionProcessingContainer: {
+        alignItems: "center",
+        padding: 30,
+        backgroundColor: "rgba(255,255,255,0.9)",
+        borderRadius: 15,
+        marginTop: 10,
+    },
+    lottieAnimation: {
+        width: 150,
+        height: 150,
+    },
+    processingText: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#2c3e50",
+        marginTop: 15,
+        textAlign: "center",
+    },
+    processingSubtext: {
+        fontSize: 14,
+        color: "#7f8c8d",
+        marginTop: 5,
+        textAlign: "center",
     },
 });

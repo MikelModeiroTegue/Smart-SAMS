@@ -1,5 +1,20 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function Dashboard() {
   const [metrics, setMetrics] = useState({
@@ -7,14 +22,13 @@ export default function Dashboard() {
     totalCourses: { value: 0, loading: true, error: null },
     totalInstructors: { value: 0, loading: true, error: null },
     totalSessions: { value: 0, loading: true, error: null },
-    overallAttendanceRate: { value: "N/A", loading: true, error: null },
+    overallAttendanceRate: { value: 0, loading: true, error: null },
     recentAttendance: { value: [], loading: true, error: null },
-    weeklyStats: {
-      value: { total: "N/A", averageRate: "N/A" },
-      loading: true,
-      error: null,
-    },
+    weeklyStats: { value: [], loading: true, error: null },
+    attendanceRates: { value: [], loading: true, error: null },
   });
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
   const getCurrentWeek = () => {
     const today = new Date();
@@ -30,6 +44,11 @@ export default function Dashboard() {
       }));
 
       const response = await axios.get(endpoint);
+
+      if (response.status !== 200) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
       let value;
 
       switch (key) {
@@ -37,29 +56,47 @@ export default function Dashboard() {
         case "totalCourses":
         case "totalInstructors":
         case "totalSessions":
-          value = response.data.length;
+          value = Array.isArray(response.data) ? response.data.length : 0;
           break;
+
         case "overallAttendanceRate":
+          const ratesData = Array.isArray(response.data) ? response.data : [];
+          const validRates = ratesData.filter(
+            (item) => !item.error && typeof item.rate === "number"
+          );
           value =
-            response.data.length > 0
-              ? (
-                  response.data.reduce((sum, item) => sum + item.rate, 0) /
-                  response.data.length
-                ).toFixed(2)
-              : "N/A";
+            validRates.length > 0
+              ? validRates.reduce((sum, item) => sum + item.rate, 0) /
+                validRates.length
+              : 0;
           break;
+
         case "recentAttendance":
-          value = response.data
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 5);
+          value = Array.isArray(response.data)
+            ? response.data
+                .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
+                .slice(0, 5)
+            : [];
           break;
+
         case "weeklyStats":
-          const currentWeekNum = getCurrentWeek();
-          value = response.data.find((stat) => {
-            const parts = stat.week.split(" ");
-            return parseInt(parts[1]) === currentWeekNum;
-          }) || { total: "N/A", averageRate: "N/A" };
+          value = Array.isArray(response.data)
+            ? response.data.map((item) => ({
+                ...item,
+                averageRate:
+                  typeof item.averageRate === "number" ? item.averageRate : 0,
+              }))
+            : [];
           break;
+
+        case "attendanceRates":
+          value = Array.isArray(response.data)
+            ? response.data.filter(
+                (item) => !item.error && item.rate !== undefined
+              )
+            : [];
+          break;
+
         default:
           value = response.data;
       }
@@ -69,6 +106,7 @@ export default function Dashboard() {
         [key]: { value, loading: false, error: null },
       }));
     } catch (err) {
+      console.error(`Error fetching ${key}:`, err);
       setMetrics((prev) => ({
         ...prev,
         [key]: {
@@ -97,14 +135,40 @@ export default function Dashboard() {
       "http://localhost:3000/api/admin/statistics/weekly-attendance",
       "weeklyStats"
     );
+    fetchData(
+      "http://localhost:3000/api/admin/analytics/attendance-rate",
+      "attendanceRates"
+    );
   }, [fetchData]);
+
+  // Prepare data for charts
+  const summaryData = [
+    { name: "Students", value: metrics.totalStudents.value },
+    { name: "Courses", value: metrics.totalCourses.value },
+    { name: "Instructors", value: metrics.totalInstructors.value },
+    { name: "Sessions", value: metrics.totalSessions.value },
+  ];
+
+  const currentWeekData =
+    metrics.weeklyStats.value.length > 0
+      ? metrics.weeklyStats.value
+          .filter((item) => {
+            const weekNum = parseInt(item.week?.split(" ")[1]);
+            return weekNum === getCurrentWeek();
+          })
+          .map((item) => ({
+            name: item.week,
+            attendance: item.total,
+            rate: item.averageRate,
+          }))
+      : [{ name: "Current Week", attendance: 0, rate: 0 }];
 
   return (
     <div className="dashboard-screen">
-      <h2 className="dashboard-title">Dashboard</h2>
+      <h2 className="dashboard-title">Dashboard Analytics</h2>
 
       {Object.values(metrics).some((m) => m.loading) && (
-        <p className="dashboard-status">Loading...</p>
+        <p className="dashboard-status">Loading dashboard data...</p>
       )}
 
       {Object.values(metrics).some((m) => m.error) && (
@@ -117,57 +181,161 @@ export default function Dashboard() {
 
       {!Object.values(metrics).some((m) => m.loading || m.error) && (
         <div className="dashboard-grid">
-          <div className="dashboard-card blue">
-            <h3>Total Students</h3>
-            <p>{metrics.totalStudents.value}</p>
+          {/* Summary Pie Chart */}
+          <div className="dashboard-card">
+            <h3>System Overview</h3>
+            <div style={{ height: "300px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={summaryData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
+                  >
+                    {summaryData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="dashboard-card green">
-            <h3>Total Courses</h3>
-            <p>{metrics.totalCourses.value}</p>
-          </div>
-
-          <div className="dashboard-card yellow">
-            <h3>Total Instructors</h3>
-            <p>{metrics.totalInstructors.value}</p>
-          </div>
-
-          <div className="dashboard-card purple">
-            <h3>Total Sessions</h3>
-            <p>{metrics.totalSessions.value}</p>
-          </div>
-
-          <div className="dashboard-card teal">
+          {/* Attendance Rate Gauge */}
+          <div className="dashboard-card">
             <h3>Overall Attendance Rate</h3>
-            <p>{metrics.overallAttendanceRate.value}%</p>
+            <div style={{ height: "300px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      {
+                        name: "Present",
+                        value: metrics.overallAttendanceRate.value,
+                      },
+                      {
+                        name: "Absent",
+                        value: 100 - metrics.overallAttendanceRate.value,
+                      },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    startAngle={180}
+                    endAngle={0}
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    <Cell fill="#00C49F" />
+                    <Cell fill="#FF8042" />
+                  </Pie>
+                  <text
+                    x="50%"
+                    y="50%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    {metrics.overallAttendanceRate.value.toFixed(1)}%
+                  </text>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="dashboard-card indigo wide">
-            <h3>Current Week Stats</h3>
-            <p>Total: {metrics.weeklyStats.value.total}</p>
-            <p>Average Rate: {metrics.weeklyStats.value.averageRate}%</p>
+          {/* Weekly Attendance Trend */}
+          <div className="dashboard-card wide">
+            <h3>Weekly Attendance Trend</h3>
+            <div style={{ height: "300px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={metrics.weeklyStats.value}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="week" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
+                    name="Total Attendance"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="averageRate"
+                    stroke="#82ca9d"
+                    name="Average Rate (%)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="dashboard-card red wide">
-            <h3>Recent Attendance</h3>
-            <ul className="attendance-list">
-              {metrics.recentAttendance.value.map((att, index) => (
-                <li key={index}>
-                  {att.student_matricule || "N/A"} —{" "}
-                  {new Date(att.date).toLocaleString()} —{" "}
-                  {att.courseSessionSchedule_ID || "N/A"}
-                </li>
-              ))}
-            </ul>
+          {/* Course-wise Attendance */}
+          <div className="dashboard-card wide">
+            <h3>Course-wise Attendance Rates</h3>
+            <div style={{ height: "300px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={metrics.attendanceRates.value}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="courseName" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar
+                    dataKey="rate"
+                    fill="#8884d8"
+                    name="Attendance Rate (%)"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="dashboard-actions">
-            <a href="/course-sessions" className="dashboard-button blue">
-              View Sessions
-            </a>
-            <a href="/manage-courses" className="dashboard-button green">
-              Manage Courses
-            </a>
+          {/* Recent Attendance Table */}
+          <div className="dashboard-card wide">
+            <h3>Recent Attendance Records</h3>
+            <div className="attendance-table-container">
+              <table className="attendance-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Date</th>
+                    <th>Session</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {metrics.recentAttendance.value.map((att, index) => (
+                    <tr key={index}>
+                      <td>{att.student_matricule || "N/A"}</td>
+                      <td>{att.courseSession?.course?.name || "N/A"}</td>
+                      <td>{new Date(att.date).toLocaleString()}</td>
+                      <td>{att.courseSessionSchedule_ID || "N/A"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

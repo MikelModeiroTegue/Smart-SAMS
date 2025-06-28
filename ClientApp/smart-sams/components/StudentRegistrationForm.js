@@ -39,7 +39,7 @@ const StudentRegistrationForm = ({ user, onRegister }) => {
       // const deviceInfo = await encryptFingerprint(deviceFingerprint);
 
       const response = await axios.post(
-        "https://7f14-129-0-205-32.ngrok-free.app/auth/register-student",
+        "https://2b1a-129-0-102-36.ngrok-free.app/auth/register-student",
         {
           matricule,
           email: user.email,

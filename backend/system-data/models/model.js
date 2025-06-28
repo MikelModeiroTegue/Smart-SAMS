@@ -138,5 +138,7 @@ CourseSession.belongsTo(Course, { foreignKey: 'course_ID' });
 Course.hasMany(CourseSession, { foreignKey: 'course_ID' });
 CourseSession.belongsTo(Venue, { foreignKey: 'v_name' });
 Venue.hasMany(CourseSession, { foreignKey: 'v_name' });
+CourseSession.hasMany(Attendance, { foreignKey: 'courseSessionSchedule_ID' });
+Attendance.belongsTo(CourseSession, { foreignKey: "courseSessionSchedule_ID" });
 
 module.exports = { Instructor, Course, CourseAssignment, CourseSession, Venue, Student, Enrollment, Attendance, sequelize };

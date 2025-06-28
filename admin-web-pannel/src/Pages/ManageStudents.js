@@ -13,7 +13,9 @@ export default function ManageStudents() {
 
     const fetchStudents = async () => {
         try {
-            const response = await axios.get("http://localhost:3000/api/admin/students");
+            const response = await axios.get(
+              "http://localhost:3000/api/admin/students"
+            );
             setStudents(response.data);
             setFilteredStudents(response.data);
         } catch (err) {
@@ -43,7 +45,7 @@ export default function ManageStudents() {
     const fetchEnrolledCourses = async (matricule) => {
         try {
             const response = await axios.get(
-                `http://localhost:3000/api/admin/students/${matricule}/courses`
+              `http://localhost:3000/api/admin/students/${matricule}/courses`
             );
             setEnrolledCourses(response.data);
         } catch (err) {
@@ -54,48 +56,50 @@ export default function ManageStudents() {
 
     if (editingStudent) {
         return (
-            <div className="main-content">
-                <EditForm
-                    item={editingStudent}
-                    fields={[
-                        { name: "name", label: "Name" },
-                        { name: "phoneNum", label: "Phone Number" },
-                        { name: "email", label: "Email" },
-                        { name: "department", label: "Department" },
-                        { name: "level", label: "Level" },
-                    ]}
-                    onSave={async () => {
-                        await fetchStudents();
-                        setEditingStudent(null);
-                        setEnrolledCourses([]);
-                    }}
-                    onCancel={() => {
-                        setEditingStudent(null);
-                        setEnrolledCourses([]);
-                    }}
-                    apiEndpoint="http://localhost:3000/api/admin/students"
-                />
+          <div className="main-content">
+            <EditForm
+              item={editingStudent}
+              fields={[
+                { name: "name", label: "Name" },
+                { name: "phoneNum", label: "Phone Number" },
+                { name: "email", label: "Email" },
+                { name: "department", label: "Department" },
+                { name: "level", label: "Level" },
+              ]}
+              onSave={async () => {
+                await fetchStudents();
+                setEditingStudent(null);
+                setEnrolledCourses([]);
+              }}
+              onCancel={() => {
+                setEditingStudent(null);
+                setEnrolledCourses([]);
+              }}
+              apiEndpoint="http://localhost:3000/api/admin/students"
+            />
 
-                {enrolledCourses.length > 0 ? (
-                    <div className="stat-cards mt-4">
-                        <h3 className="page-header h3">
-                            Enrolled Courses for {editingStudent.name}
-                        </h3>
-                        <div className="table-container mt-4">
-                            <Table
-                                headers={["Course Code", "Course Name", "Instructor"]}
-                                data={enrolledCourses.map((course) => ({
-                                    "Course Code": course.courseCode,
-                                    "Course Name": course.courseName,
-                                    Instructor: course.instructor || "N/A",
-                                }))}
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    <p className="meta-info mt-4">No enrolled courses found for this student.</p>
-                )}
-            </div>
+            {enrolledCourses.length > 0 ? (
+              <div className="stat-cards mt-4">
+                <h3 className="page-header h3">
+                  Enrolled Courses for {editingStudent.name}
+                </h3>
+                <div className="table-container mt-4">
+                  <Table
+                    headers={["Course Code", "Course Name", "Instructor"]}
+                    data={enrolledCourses.map((course) => ({
+                      "Course Code": course.courseCode,
+                      "Course Name": course.courseName,
+                      Instructor: course.instructor || "N/A",
+                    }))}
+                  />
+                </div>
+              </div>
+            ) : (
+              <p className="meta-info mt-4">
+                No enrolled courses found for this student.
+              </p>
+            )}
+          </div>
         );
     }
 

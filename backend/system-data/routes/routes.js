@@ -328,22 +328,64 @@ router.post("/timetable/load", async (req, res) => {
 });
 
 router.post("/attendance/store", async (req, res) => {
+  console.log("=== ATTENDANCE STORE REQUEST RECEIVED ===");
+  console.log("Timestamp:", new Date().toISOString());
+  console.log("Request Headers:", req.headers);
+  console.log("Request Body:", req.body);
+  console.log("Request Method:", req.method);
+  console.log("Request URL:", req.url);
+  
   try {
-    const {
-      courseSessionSchedule_ID,
-      student_matricule,
-      blockchainTxID,
-      date,
-    } = req.body;
-    const attendance = await AttendanceRepository.storeAttendance({
-      courseSessionSchedule_ID,
-      student_matricule,
-      blockchainTxID,
-      date,
-    });
-    res.status(200).json({ success: true, attendance });
+      const {
+          courseSessionSchedule_ID,
+          student_matricule,
+          blockchainTxID,
+          date,
+      } = req.body;
+
+      console.log("Extracted parameters:", {
+          courseSessionSchedule_ID,
+          student_matricule,
+          blockchainTxID,
+          date
+      });
+
+      // Validate required fields
+      if (!courseSessionSchedule_ID || !student_matricule || !blockchainTxID) {
+          console.log(" Missing required fields");
+          return res.status(400).json({ 
+              success: false, 
+              error: "Missing required fields",
+              received: {
+                  courseSessionSchedule_ID: !!courseSessionSchedule_ID,
+                  student_matricule: !!student_matricule,
+                  blockchainTxID: !!blockchainTxID
+              }
+          });
+      }
+
+      console.log(" All required fields present, calling repository...");
+      
+      const attendance = await attendanceRepository.storeAttendance({
+          courseSessionSchedule_ID,
+          student_matricule,
+          blockchainTxID,
+          date,
+      });
+
+      console.log(" Repository call successful:", attendance);
+      
+      res.status(200).json({ success: true, attendance });
+      
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+      console.log(" Error in attendance store:", error.message);
+      console.log("Error stack:", error.stack);
+      
+      res.status(400).json({ 
+          success: false, 
+          error: error.message,
+          timestamp: new Date().toISOString()
+      });
   }
 });
 
