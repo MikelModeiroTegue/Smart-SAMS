@@ -15,6 +15,22 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
+import {
+  Users,
+  BookOpen,
+  User,
+  Calendar,
+  Clock,
+  ArrowUpRight,
+  AlertCircle,
+  Loader2,
+  ChevronRight,
+  TrendingUp,
+  PieChart as PieChartIcon,
+  BarChart2,
+  LineChart as LineChartIcon,
+} from "lucide-react";
+import "../css/dashboard.css"
 
 export default function Dashboard() {
   const [metrics, setMetrics] = useState({
@@ -28,7 +44,7 @@ export default function Dashboard() {
     attendanceRates: { value: [], loading: true, error: null },
   });
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+  const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
   const getCurrentWeek = () => {
     const today = new Date();
@@ -143,10 +159,26 @@ export default function Dashboard() {
 
   // Prepare data for charts
   const summaryData = [
-    { name: "Students", value: metrics.totalStudents.value },
-    { name: "Courses", value: metrics.totalCourses.value },
-    { name: "Instructors", value: metrics.totalInstructors.value },
-    { name: "Sessions", value: metrics.totalSessions.value },
+    {
+      name: "Students",
+      value: metrics.totalStudents.value,
+      icon: <Users size={16} />,
+    },
+    {
+      name: "Courses",
+      value: metrics.totalCourses.value,
+      icon: <BookOpen size={16} />,
+    },
+    {
+      name: "Instructors",
+      value: metrics.totalInstructors.value,
+      icon: <User size={16} />,
+    },
+    {
+      name: "Sessions",
+      value: metrics.totalSessions.value,
+      icon: <Calendar size={16} />,
+    },
   ];
 
   const currentWeekData =
@@ -164,180 +196,298 @@ export default function Dashboard() {
       : [{ name: "Current Week", attendance: 0, rate: 0 }];
 
   return (
-    <div className="dashboard-screen">
-      <h2 className="dashboard-title">Dashboard Analytics</h2>
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">
+          <TrendingUp size={24} className="dashboard-title-icon" />
+          Dashboard Analytics
+        </h1>
+        <div className="dashboard-subtitle">
+          Overview of your institution's performance metrics
+        </div>
+      </div>
 
       {Object.values(metrics).some((m) => m.loading) && (
-        <p className="dashboard-status">Loading dashboard data...</p>
+        <div className="dashboard-loading">
+          <Loader2 size={20} className="animate-spin" />
+          <span>Loading dashboard data...</span>
+        </div>
       )}
 
       {Object.values(metrics).some((m) => m.error) && (
-        <p className="dashboard-error">
-          {Object.values(metrics)
-            .filter((m) => m.error)
-            .map((m, i, arr) => `${m.error}${i < arr.length - 1 ? ", " : ""}`)}
-        </p>
+        <div className="dashboard-error">
+          <AlertCircle size={20} />
+          <span>
+            {Object.values(metrics)
+              .filter((m) => m.error)
+              .map(
+                (m, i, arr) => `${m.error}${i < arr.length - 1 ? ", " : ""}`
+              )}
+          </span>
+        </div>
       )}
 
       {!Object.values(metrics).some((m) => m.loading || m.error) && (
-        <div className="dashboard-grid">
-          {/* Summary Pie Chart */}
-          <div className="dashboard-card">
-            <h3>System Overview</h3>
-            <div style={{ height: "300px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={summaryData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
-                    }
-                  >
-                    {summaryData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Attendance Rate Gauge */}
-          <div className="dashboard-card">
-            <h3>Overall Attendance Rate</h3>
-            <div style={{ height: "300px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      {
-                        name: "Present",
-                        value: metrics.overallAttendanceRate.value,
-                      },
-                      {
-                        name: "Absent",
-                        value: 100 - metrics.overallAttendanceRate.value,
-                      },
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    startAngle={180}
-                    endAngle={0}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    <Cell fill="#00C49F" />
-                    <Cell fill="#FF8042" />
-                  </Pie>
-                  <text
-                    x="50%"
-                    y="50%"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    {metrics.overallAttendanceRate.value.toFixed(1)}%
-                  </text>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Weekly Attendance Trend */}
-          <div className="dashboard-card wide">
-            <h3>Weekly Attendance Trend</h3>
-            <div style={{ height: "300px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={metrics.weeklyStats.value}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        <>
+          {/* Summary Cards */}
+          <div className="metrics-grid">
+            {summaryData.map((metric, index) => (
+              <div key={metric.name} className="metric-card">
+                <div
+                  className="metric-icon"
+                  style={{ backgroundColor: COLORS[index] + "20" }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="total"
-                    stroke="#8884d8"
-                    activeDot={{ r: 8 }}
-                    name="Total Attendance"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="averageRate"
-                    stroke="#82ca9d"
-                    name="Average Rate (%)"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+                  {metric.icon}
+                </div>
+                <div className="metric-content">
+                  <div className="metric-value">{metric.value}</div>
+                  <div className="metric-label">{metric.name}</div>
+                </div>
+                <div className="metric-trend">
+                  <ArrowUpRight size={16} />
+                  <span>+2.5%</span>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Course-wise Attendance */}
-          <div className="dashboard-card wide">
-            <h3>Course-wise Attendance Rates</h3>
-            <div style={{ height: "300px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={metrics.attendanceRates.value}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="courseName" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar
-                    dataKey="rate"
-                    fill="#8884d8"
-                    name="Attendance Rate (%)"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+          {/* Main Dashboard Content */}
+          <div className="dashboard-grid">
+            {/* Attendance Rate Gauge */}
+            <div className="dashboard-card">
+              <div className="card-header">
+                <PieChartIcon size={18} />
+                <h3>Overall Attendance Rate</h3>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        {
+                          name: "Present",
+                          value: metrics.overallAttendanceRate.value,
+                        },
+                        {
+                          name: "Absent",
+                          value: 100 - metrics.overallAttendanceRate.value,
+                        },
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      startAngle={180}
+                      endAngle={0}
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      <Cell fill="#10b981" />
+                      <Cell fill="#ef4444" />
+                    </Pie>
+                    <text
+                      x="50%"
+                      y="50%"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      className="attendance-rate-text"
+                    >
+                      {metrics.overallAttendanceRate.value.toFixed(1)}%
+                    </text>
+                    <Tooltip
+                      formatter={(value) => [
+                        `${value}%`,
+                        value === metrics.overallAttendanceRate.value
+                          ? "Present"
+                          : "Absent",
+                      ]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="card-footer">
+                <span>Weekly change: +3.2%</span>
+                <ChevronRight size={16} />
+              </div>
             </div>
-          </div>
 
-          {/* Recent Attendance Table */}
-          <div className="dashboard-card wide">
-            <h3>Recent Attendance Records</h3>
-            <div className="attendance-table-container">
-              <table className="attendance-table">
-                <thead>
-                  <tr>
-                    <th>Student</th>
-                    <th>Course</th>
-                    <th>Date</th>
-                    <th>Session</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {metrics.recentAttendance.value.map((att, index) => (
-                    <tr key={index}>
-                      <td>{att.student_matricule || "N/A"}</td>
-                      <td>{att.courseSession?.course?.name || "N/A"}</td>
-                      <td>{new Date(att.date).toLocaleString()}</td>
-                      <td>{att.courseSessionSchedule_ID || "N/A"}</td>
+            {/* Summary Pie Chart */}
+            <div className="dashboard-card">
+              <div className="card-header">
+                <PieChartIcon size={18} />
+                <h3>System Overview</h3>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={summaryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) =>
+                        `${name}: ${(percent * 100).toFixed(0)}%`
+                      }
+                    >
+                      {summaryData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`${value}`, "Count"]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Weekly Attendance Trend */}
+            <div className="dashboard-card wide">
+              <div className="card-header">
+                <LineChartIcon size={18} />
+                <h3>Weekly Attendance Trend</h3>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={metrics.weeklyStats.value}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis
+                      dataKey="week"
+                      stroke="#64748b"
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)",
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="total"
+                      stroke="#6366f1"
+                      strokeWidth={2}
+                      activeDot={{ r: 8, fill: "#6366f1" }}
+                      name="Total Attendance"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="averageRate"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      name="Average Rate (%)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Course-wise Attendance */}
+            <div className="dashboard-card wide">
+              <div className="card-header">
+                <BarChart2 size={18} />
+                <h3>Course-wise Attendance Rates</h3>
+              </div>
+              <div className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={metrics.attendanceRates.value}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis
+                      dataKey="courseName"
+                      stroke="#64748b"
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)",
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="rate"
+                      fill="#6366f1"
+                      name="Attendance Rate (%)"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Recent Attendance Table */}
+            <div className="dashboard-card wide">
+              <div className="card-header">
+                <Clock size={18} />
+                <h3>Recent Attendance Records</h3>
+              </div>
+              <div className="table-container">
+                <table className="attendance-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Course</th>
+                      <th>Date</th>
+                      <th>Session</th>
+                      <th>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {metrics.recentAttendance.value.map((att, index) => (
+                      <tr key={index}>
+                        <td>
+                          <div className="student-cell">
+                            <div className="student-avatar">
+                              {att.student_matricule?.charAt(0) || "S"}
+                            </div>
+                            {att.student_matricule || "N/A"}
+                          </div>
+                        </td>
+                        <td>{att.courseSession?.course?.name || "N/A"}</td>
+                        <td>{new Date(att.date).toLocaleDateString()}</td>
+                        <td>{att.courseSessionSchedule_ID || "N/A"}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${
+                              "present" 
+                            }`}
+                          >
+                            {"Present"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="card-footer">
+                <span>
+                  Showing 5 of {metrics.recentAttendance.value.length} records
+                </span>
+                <button className="view-all-button">
+                  View All <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

@@ -44,13 +44,13 @@ export default function AttendanceScreen() {
 
                 // Step 1: Request blockchain transaction
                 const blockchainResponse = await axios.post(
-                    "https://2b1a-129-0-102-36.ngrok-free.app/api/transaction/clockin",
-                    {
-                        studentName,
-                        matricule,
-                        email,
-                        courseSessionID,
-                    }
+                  "https://dear-greatly-longhorn.ngrok-free.app/api/transaction/clockin",
+                  {
+                    studentName,
+                    matricule,
+                    email,
+                    courseSessionID,
+                  }
                 );
 
                 if (blockchainResponse.data?.transactionId) {
@@ -60,12 +60,12 @@ export default function AttendanceScreen() {
 
                     // Step 2: Store attendance in attendance table
                     const attendanceResponse = await axios.post(
-                      "https://2b1a-129-0-102-36.ngrok-free.app/api/admin/attendance/store",
+                      "https://dear-greatly-longhorn.ngrok-free.app/api/admin/attendance/store",
                       {
                         courseSessionSchedule_ID: courseSessionID,
                         student_matricule: matricule,
                         blockchainTxID: txId,
-                        date: new Date().toISOString()
+                        date: new Date().toISOString(),
                       }
                     );
 

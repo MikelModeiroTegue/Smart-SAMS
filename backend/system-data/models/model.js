@@ -50,7 +50,7 @@ const CourseSession = sequelize.define('course_sessions', {
 const Venue = sequelize.define('venues', {
   v_name: { type: DataTypes.STRING, primaryKey: true },
   geolocations: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
     get() {
       const encryptedValue = this.getDataValue('geolocations');

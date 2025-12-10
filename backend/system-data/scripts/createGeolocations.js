@@ -1,7 +1,8 @@
 // updateOrCreateVenueGeolocations.js
+require("dotenv").config({ path: "../../.env" });
+// require('dotenv').config({ path: '/home/modeiro/Smart-SAMS/backend/.env' }); // Explicitly load .env
 const { sequelize } = require('../config/db');
 const { Venue } = require('../models/model'); // Adjust path to your models file
-require('dotenv').config({ path: '/home/modeiro/Smart-SAMS/backend/.env' }); // Explicitly load .env
 
 
 (async () => {
@@ -11,13 +12,14 @@ require('dotenv').config({ path: '/home/modeiro/Smart-SAMS/backend/.env' }); // 
 
         // Define the geolocations as an array of [longitude, latitude] pairs
         const geolocations = [
-            [11.51015, 3.90085],  // Starting point
-            [11.51055, 3.90085],  // East
-            [11.51055, 3.90125],  // North
-            [11.51015, 3.90125]   // West
+          [9.288848, 4.14303],
+          [9.288842, 4.14311],
+          [9.28849, 4.14316],
+          [9.28856, 4.1431],
+          [9.288848, 4.14303] // Closing the polygon by repeating the first point
         ];
 
-        const v_name = 'MainHall'; // Venue name to check or create
+        const v_name = "FET-BFF-HALL1"; // Venue name to check or create
 
         // Check if venue exists
         const existingVenue = await Venue.findOne({ where: { v_name } });

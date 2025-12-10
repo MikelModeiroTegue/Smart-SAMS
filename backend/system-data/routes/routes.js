@@ -178,12 +178,12 @@ router.get("/attendance", async (req, res) => {
   }
 });
 
-// Get attendance data per course
-router.get("/attendance/course/:courseID", async (req, res) => {
+// Get attendance data per courseSession
+router.get("/attendance/course-session/:ID", async (req, res) => {
   try {
-    const { courseID } = req.params;
-    const attendance = await attendanceRepository.getAttendanceByCourse(
-      courseID
+    const { ID } = req.params;
+    const attendance = await attendanceRepository.getAttendanceByCourseSession(
+      ID
     );
     res.status(200).json(attendance);
   } catch (error) {
